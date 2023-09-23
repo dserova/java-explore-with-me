@@ -1,15 +1,93 @@
 version: '3.1'
 services:
   stats-server:
+    build: stats-service/.
+    container_name: explore-with-me-stats-service
+    depends_on:
+      - stats-db
     ports:
-      - "9090:9090"
+      - "9090:${STATS_PORT}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://stats-server:${STATS_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: always
+    environment:
+      SERVER_PORT: ${STATS_PORT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:${PG_PORT}/${PG_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${PG_USER}
+      SPRING_DATASOURCE_PASSWORD: ${PG_PASSWORD}
+    networks:
+      - share_network
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   stats-db:
-    image: postgres:14-alpine
-
-  ewm-service:
+    image: postgres:15-alpine
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=1000"
+      - "-c"
+      - "shared_buffers=100MB"
+      - "-c"
+      - "effective_cache_size=200MB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=1GB"
+      - "-c"
+      - "log_min_duration_statement=250ms"
+      - "-c"
+      - "idle_in_transaction_session_timeout=30s"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=1000"
+      - "-c"
+      - "pg_stat_statements.track=all"
     ports:
-      - "8080:8080"
+      # test only
+      - "6541:${PG_PORT}"
+    container_name: stats-db
+    healthcheck:
+      test: pg_isready -U ${PG_USER} -d ${PG_DATABASE}
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      LANG: ru_RU.utf8
+    networks:
+      - share_network
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - db-data:/var/lib/postgresql/data
 
-  ewm-db:
-    image: postgres:14-alpine
+volumes:
+  db-data:
+
+networks:
+  share_network:
+    driver: bridge
+
+#  ewm-service:
+#    ports:
+#      - "8080:8080"
+#
+#  ewm-db:
+#    image: postgres:14-alpine
