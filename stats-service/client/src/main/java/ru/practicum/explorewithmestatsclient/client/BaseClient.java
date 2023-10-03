@@ -37,19 +37,19 @@ public class BaseClient {
 
     private <T, TT> ResponseEntity<TT> makeAndSendRequest(HttpMethod method, String path, @Nullable Map<String, Object> parameters, @Nullable T body) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
-        ResponseEntity<TT> shareitServerResponse;
+        ResponseEntity<TT> serverResponse;
         try {
             if (parameters != null) {
-                shareitServerResponse = rest.exchange(path, method, requestEntity, new ParameterizedTypeReference<TT>() {
+                serverResponse = rest.exchange(path, method, requestEntity, new ParameterizedTypeReference<TT>() {
                 }, parameters);
             } else {
-                shareitServerResponse = rest.exchange(path, method, requestEntity, new ParameterizedTypeReference<TT>() {
+                serverResponse = rest.exchange(path, method, requestEntity, new ParameterizedTypeReference<TT>() {
                 });
             }
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(null);
         }
-        return prepareGatewayResponse(shareitServerResponse);
+        return prepareGatewayResponse(serverResponse);
     }
 
     private HttpHeaders defaultHeaders() {

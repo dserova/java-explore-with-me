@@ -1,7 +1,8 @@
 version: '3.1'
 services:
   stats-server:
-    build: stats-service/.
+    build:
+       dockerfile: ./DockerfileStat
     container_name: explore-with-me-stats-service
     depends_on:
       - stats-db
@@ -18,6 +19,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:${PG_PORT}/${PG_DATABASE}
       SPRING_DATASOURCE_USERNAME: ${PG_USER}
       SPRING_DATASOURCE_PASSWORD: ${PG_PASSWORD}
+      TZ: 'GMT'
+      PGTZ: 'GMT'
     networks:
       - share_network
     volumes:
@@ -25,7 +28,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   stats-db:
-    image: postgres:15-alpine
+    image: postgres:14-alpine
     command:
       - "postgres"
       - "-c"
@@ -56,6 +59,8 @@ services:
       - "pg_stat_statements.max=1000"
       - "-c"
       - "pg_stat_statements.track=all"
+      - "-p"
+      - "${PG_PORT}"
     ports:
       # test only
       - "6541:${PG_PORT}"
@@ -70,7 +75,98 @@ services:
       POSTGRES_DB: ${PG_DATABASE}
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
       LANG: ru_RU.utf8
+      TZ: 'GMT'
+      PGTZ: 'GMT'
+    networks:
+      - share_network
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - stat-db-data:/var/lib/postgresql/data
+
+  ewm-service:
+    build:
+       dockerfile: ./DockerfileEwm
+    container_name: explore-with-me-service
+    depends_on:
+      - ewm-db
+      - stats-server
+    ports:
+      - "8080:${APP_PORT}"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://ewm-service:${APP_PORT}/actuator/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: always
+    environment:
+      SERVER_PORT: ${APP_PORT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:${APP_PG_PORT}/${APP_PG_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${PG_USER}
+      SPRING_DATASOURCE_PASSWORD: ${PG_PASSWORD}
+      EWM-STATS-SERVICE_URL: http://stats-server:${STATS_PORT}
+      TZ: 'GMT'
+      PGTZ: 'GMT'
+    networks:
+      - share_network
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+  ewm-db:
+    image: postgres:14-alpine
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=1000"
+      - "-c"
+      - "shared_buffers=100MB"
+      - "-c"
+      - "effective_cache_size=200MB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=1GB"
+      - "-c"
+      - "log_min_duration_statement=250ms"
+      - "-c"
+      - "idle_in_transaction_session_timeout=30s"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=1000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      - "-p"
+      - "${APP_PG_PORT}"
+    ports:
+      # test only
+      - "6542:${APP_PG_PORT}"
+    container_name: ewm-db
+    healthcheck:
+      test: pg_isready -U ${PG_USER} -d ${APP_PG_DATABASE} -p ${APP_PG_PORT}
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${APP_PG_DATABASE}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      LANG: ru_RU.utf8
+      TZ: 'GMT'
+      PGTZ: 'GMT'
     networks:
       - share_network
     volumes:
@@ -79,15 +175,9 @@ services:
       - db-data:/var/lib/postgresql/data
 
 volumes:
+  stat-db-data:
   db-data:
 
 networks:
   share_network:
     driver: bridge
-
-#  ewm-service:
-#    ports:
-#      - "8080:8080"
-#
-#  ewm-db:
-#    image: postgres:14-alpine

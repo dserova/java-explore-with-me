@@ -8,7 +8,14 @@ import java.util.Calendar;
 import java.util.List;
 
 public interface EndpointHitService {
-    List<ViewStatsDto> getAllHits(Calendar start, Calendar end, Boolean unique, List<String> uris);
+    List<ViewStatsDto> getAllHits(
+            Calendar start,
+            Calendar end,
+            Boolean unique,
+            List<String> uris
+    );
 
-    EndpointHit createHit(EndpointHitDto hit);
+    EndpointHit createHit(
+            EndpointHitDto hit
+    );
 }

@@ -15,11 +15,9 @@ import java.util.Optional;
 public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> {
     @Query("select new ru.practicum.explorewithmestatscommon.dto.ViewStatsDto(i.app, i.uri, count(i.id) ) from EndpointHit i " +
             "where " +
-            "i.timestamp >= :start " +
+            "i.timestamp between (:start) and (:end) " +
             "and " +
-            "i.timestamp < :end " +
-            "and " +
-            "((trim(i.uri) IN (:uris)) OR (NULLIF((:uris), null) IS null)) " +
+            "((i.uri IN (:uris)) OR ((:uris) IS null)) " +
             "group by i.app, i.uri ORDER BY count(i.id) DESC")
     Optional<List<ViewStatsDto>> getAllHitsWithFilter(
             @Param("start") Calendar start,
@@ -27,14 +25,12 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
             @Param("uris") List<String> uris
     );
 
-    @Query("select new ru.practicum.explorewithmestatscommon.dto.ViewStatsDto(i.app, i.uri, 1L) from EndpointHit i " +
+    @Query("select new ru.practicum.explorewithmestatscommon.dto.ViewStatsDto(i.app, i.uri, count(DISTINCT i.ip)) from EndpointHit i " +
             "where " +
-            "i.timestamp >= :start " +
+            "i.timestamp between (:start) and (:end) " +
             "and " +
-            "i.timestamp < :end " +
-            "and " +
-            "((trim(i.uri) IN (:uris)) OR (NULLIF((:uris), null) IS null)) " +
-            "group by i.app, i.uri ORDER BY i.app, i.uri DESC")
+            "((i.uri IN (:uris)) OR ((:uris) IS null)) " +
+            "group by i.app, i.uri ORDER BY count(i.id) DESC")
     Optional<List<ViewStatsDto>> getAllHitsWithFilterUnique(
             @Param("start") Calendar start,
             @Param("end") Calendar end,

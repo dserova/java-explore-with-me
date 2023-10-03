@@ -12,11 +12,11 @@ import java.util.Calendar;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "hits", schema = "Public", uniqueConstraints = {@UniqueConstraint(columnNames = {"hits_id"})})
+@Table(name = "hits", schema = "Public", uniqueConstraints = {@UniqueConstraint(columnNames = {"hit_id"})})
 public class EndpointHit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "hits_id")
+    @Column(name = "hit_id")
     private Long id;
     @NonNull
     @Column(name = "app")
