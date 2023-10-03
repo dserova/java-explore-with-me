@@ -2,6 +2,7 @@ package ru.practicum.explorewithmestatsserver.hit.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithmestatscommon.dto.EndpointHitDto;
 import ru.practicum.explorewithmestatscommon.dto.ViewStatsDto;
@@ -34,6 +35,7 @@ public class EndpointHitController {
     }
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitDto createUser(@RequestBody EndpointHitDto userRequestDto) {
         EndpointHit user = hitService.createHit(userRequestDto);
         return mapper.map(user, EndpointHitDto.class);

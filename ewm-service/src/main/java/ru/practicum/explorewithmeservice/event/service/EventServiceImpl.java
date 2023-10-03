@@ -310,27 +310,30 @@ public class EventServiceImpl implements EventService {
         return chain.andThen(
                 helper.fromPage(EventResponseDto.class)
         ).andThen(
-                events -> events.stream().map(
-                        event -> {
-                            Thread thread = new Thread(() -> {
-                                EndpointHitDto statistic = new EndpointHitDto();
-                                statistic.setApp(app);
-                                statistic.setIp(ip);
-                                statistic.setUri(url);
-                                statistic.setTimestamp(Calendar.getInstance());
-                                ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
-                                clientCreateHit.createHit(statistic);
-                            });
-                            thread.start();
+                events -> {
+                    Thread thread = new Thread(() -> {
+                        EndpointHitDto statistic = new EndpointHitDto();
+                        statistic.setApp(app);
+                        statistic.setIp(ip);
+                        statistic.setUri(url);
+                        statistic.setTimestamp(Calendar.getInstance());
+                        ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
+                        clientCreateHit.createHit(statistic);
+                    });
+                    thread.start();
+                    return events.stream().map(
+                            event -> {
 
-                            ClientGetStats clientGetStats = new ClientGetStats(addressStatistic, builder);
 
-                            List<String> uris = new ArrayList<>();
-                            uris.add(url);
+                                ClientGetStats clientGetStats = new ClientGetStats(addressStatistic, builder);
 
-                            return getEventResponseDto(event, clientGetStats, uris);
-                        }
-                ).collect(Collectors.toList())
+                                List<String> uris = new ArrayList<>();
+                                uris.add(url);
+
+                                return getEventResponseDto(event, clientGetStats, uris);
+                            }
+                    ).collect(Collectors.toList());
+                }
         ).apply(
                 eventRepository.search(
                         text,

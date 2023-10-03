@@ -21,6 +21,11 @@ public class EndpointHitServiceImpl implements EndpointHitService {
 
     @Override
     public List<ViewStatsDto> getAllHits(Calendar start, Calendar end, Boolean unique, List<String> uris) {
+        if (start != null && end != null) {
+            if (start.after(end)) {
+                throw new HitBadRequestException();
+            }
+        }
         if (unique) {
             return endpointHitRepository.getAllHitsWithFilterUnique(start, end, uris)
                     .orElseThrow(HitBadRequestException::new);
