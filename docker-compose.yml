@@ -2,7 +2,8 @@ version: '3.1'
 services:
   stats-server:
     build:
-       dockerfile: ./DockerfileStat
+      context: ./
+      dockerfile: DockerfileStat
     container_name: explore-with-me-stats-service
     depends_on:
       - stats-db
@@ -88,7 +89,8 @@ services:
 
   ewm-service:
     build:
-       dockerfile: ./DockerfileEwm
+      context: ./
+      dockerfile: DockerfileEwm
     container_name: explore-with-me-service
     depends_on:
       - ewm-db
