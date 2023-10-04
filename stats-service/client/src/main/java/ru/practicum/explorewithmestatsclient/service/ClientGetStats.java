@@ -2,6 +2,7 @@ package ru.practicum.explorewithmestatsclient.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,6 +15,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.explorewithmestatsclient.client.BaseClient;
 import ru.practicum.explorewithmestatscommon.dto.ViewStatsDto;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@Slf4j
 public class ClientGetStats extends BaseClient {
 
     private static final String API_PREFIX = "/stats";
@@ -59,14 +62,23 @@ public class ClientGetStats extends BaseClient {
         return pathUrl.toString();
     }
 
+    private List<ViewStatsDto> getViewStatsDtos(MultiValueMap<String, Object> param, String pathUrl) {
+        try {
+            ResponseEntity<List<ViewStatsDto>> object = get(pathUrl, param.toSingleValueMap());
+            return mapping.mapList(Objects.requireNonNull(object.getBody()), ViewStatsDto.class);
+        } catch (Exception e) {
+            log.error("Check statistic service.");
+            return new ArrayList<>();
+        }
+    }
+
     public List<ViewStatsDto> getStats(Calendar start, Calendar end, List<String> uris, Boolean unique) {
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         String pathUrl = buildURIList("uris", uris, param) +
                 buildURI("start", start.toInstant(), param) +
                 buildURI("end", end.toInstant(), param) +
                 buildURI("unique", unique, param);
-        ResponseEntity<List<ViewStatsDto>> object = get(pathUrl, param.toSingleValueMap());
-        return mapping.mapList(Objects.requireNonNull(object.getBody()), ViewStatsDto.class);
+        return getViewStatsDtos(param, pathUrl);
     }
 
     public List<ViewStatsDto> getStats(Calendar start, Calendar end, List<String> uris) {
@@ -74,8 +86,7 @@ public class ClientGetStats extends BaseClient {
         String pathUrl = buildURIList("uris", uris, param) +
                 buildURI("start", start.toInstant(), param) +
                 buildURI("end", end.toInstant(), param);
-        ResponseEntity<List<ViewStatsDto>> object = get(pathUrl, param.toSingleValueMap());
-        return mapping.mapList(Objects.requireNonNull(object.getBody()), ViewStatsDto.class);
+        return getViewStatsDtos(param, pathUrl);
     }
 
     public List<ViewStatsDto> getStats(Calendar start, Calendar end, Boolean unique) {
@@ -83,16 +94,14 @@ public class ClientGetStats extends BaseClient {
         String pathUrl = buildURI("start", start.toInstant(), param) +
                 buildURI("end", end.toInstant(), param) +
                 buildURI("unique", unique, param);
-        ResponseEntity<List<ViewStatsDto>> object = get(pathUrl, param.toSingleValueMap());
-        return mapping.mapList(Objects.requireNonNull(object.getBody()), ViewStatsDto.class);
+        return getViewStatsDtos(param, pathUrl);
     }
 
     public List<ViewStatsDto> getStats(Calendar start, Calendar end) {
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         String pathUrl = buildURI("start", start.toInstant(), param) +
                 buildURI("end", end.toInstant(), param);
-        ResponseEntity<List<ViewStatsDto>> object = get(pathUrl, param.toSingleValueMap());
-        return mapping.mapList(Objects.requireNonNull(object.getBody()), ViewStatsDto.class);
+        return getViewStatsDtos(param, pathUrl);
     }
 
     @NoArgsConstructor

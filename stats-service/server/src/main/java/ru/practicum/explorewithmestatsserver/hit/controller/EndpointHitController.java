@@ -2,6 +2,7 @@ package ru.practicum.explorewithmestatsserver.hit.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithmestatscommon.dto.EndpointHitDto;
 import ru.practicum.explorewithmestatscommon.dto.ViewStatsDto;
@@ -27,13 +28,14 @@ public class EndpointHitController {
             @Valid @NotNull @RequestParam(name = "start") Calendar start,
             @Valid @NotNull @RequestParam(name = "end") Calendar end,
             @RequestParam(name = "unique", defaultValue = "false") Boolean unique,
-            @RequestParam(name = "uris", defaultValue = "") List<String> uris
+            @RequestParam(name = "uris", required = false) List<String> uris
     ) {
         return hitService.getAllHits(start, end, unique, uris).stream().map(user -> mapper.map(user, ViewStatsDto.class))
                 .collect(Collectors.toList());
     }
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitDto createUser(@RequestBody EndpointHitDto userRequestDto) {
         EndpointHit user = hitService.createHit(userRequestDto);
         return mapper.map(user, EndpointHitDto.class);

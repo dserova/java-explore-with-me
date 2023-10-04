@@ -1,6 +1,7 @@
 package ru.practicum.explorewithmestatsclient.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -13,6 +14,7 @@ import ru.practicum.explorewithmestatscommon.dto.EndpointHitDto;
 
 
 @Service
+@Slf4j
 public class ClientCreateHit extends BaseClient {
 
     private static final String API_PREFIX = "/hit";
@@ -30,7 +32,12 @@ public class ClientCreateHit extends BaseClient {
     }
 
     public EndpointHitDto createHit(EndpointHitDto hit) {
-        ResponseEntity<Object> object = post("", hit);
-        return mapper.convertValue(object.getBody(), EndpointHitDto.class);
+        try {
+            ResponseEntity<Object> object = post("", hit);
+            return mapper.convertValue(object.getBody(), EndpointHitDto.class);
+        } catch (Exception e) {
+            log.error("Check statistic service.");
+            return new EndpointHitDto();
+        }
     }
 }

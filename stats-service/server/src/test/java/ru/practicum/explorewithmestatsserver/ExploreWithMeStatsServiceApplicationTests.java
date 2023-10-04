@@ -79,7 +79,7 @@ class ExploreWithMeStatsServiceApplicationTests {
 
         List<ViewStatsDto> stats1 = clientGetStats.getStats(now1, now2, uris, true);
         List<ViewStatsDto> vsl = new ArrayList<>();
-        vsl.add(new ViewStatsDto("TEST APP", "/event/1", 1L));
+        vsl.add(new ViewStatsDto("TEST APP", "/event/1", 2L));
         log.info("stats1={}\n{}", stats1, vsl);
         Assertions.assertEquals(stats1, vsl);
 
@@ -91,8 +91,8 @@ class ExploreWithMeStatsServiceApplicationTests {
 
         List<ViewStatsDto> stats3 = clientGetStats.getStats(now1, now2, true);
         List<ViewStatsDto> vsl3 = new ArrayList<>();
-        vsl3.add(new ViewStatsDto("TEST APP", "/event/2", 1L));
-        vsl3.add(new ViewStatsDto("TEST APP", "/event/1", 1L));
+        vsl3.add(new ViewStatsDto("TEST APP", "/event/2", 3L));
+        vsl3.add(new ViewStatsDto("TEST APP", "/event/1", 2L));
         log.info("stats2={}\n{}", stats3, vsl3);
         Assertions.assertEquals(stats3, vsl3);
 
@@ -114,8 +114,8 @@ class ExploreWithMeStatsServiceApplicationTests {
 
         List<ViewStatsDto> stats6 = clientGetStats.getStats(now1, now2, uris, true);
         List<ViewStatsDto> vsl6 = new ArrayList<>();
-        vsl6.add(new ViewStatsDto("TEST APP", "/event/2", 1L));
-        vsl6.add(new ViewStatsDto("TEST APP", "/event/1", 1L));
+        vsl6.add(new ViewStatsDto("TEST APP", "/event/2", 3L));
+        vsl6.add(new ViewStatsDto("TEST APP", "/event/1", 2L));
         log.info("stats2={}\n{}", stats6, vsl6);
         Assertions.assertEquals(stats6, vsl6);
 
@@ -128,7 +128,7 @@ class ExploreWithMeStatsServiceApplicationTests {
 
         List<ViewStatsDto> stats8 = clientGetStats.getStats(now1, now3, uris, true);
         List<ViewStatsDto> vsl8 = new ArrayList<>();
-        vsl8.add(new ViewStatsDto("TEST APP", "/event/1", 1L));
+        vsl8.add(new ViewStatsDto("TEST APP", "/event/1", 2L));
         log.info("stats2={}\n{}", stats8, vsl8);
         Assertions.assertEquals(stats8, vsl8);
 
