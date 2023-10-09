@@ -35,7 +35,7 @@ public class Comment {
     @Column(name = "status")
     private CommentStatus status;
     @JoinColumn(name = "comment_id")
-    @ManyToMany(cascade ={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private List<Comment> replies;
 
     @PreUpdate
