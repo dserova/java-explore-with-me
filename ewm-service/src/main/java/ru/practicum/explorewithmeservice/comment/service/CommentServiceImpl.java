@@ -297,7 +297,7 @@ public class CommentServiceImpl implements CommentService {
         return chain.andThen(
                 helper.fromPage(CommentResponseDto.class)
         ).apply(
-                commentRepository.findAllByEvent_IdAndEvent_Initiator_Id(
+                commentRepository.findAllByEvent_IdAndEvent_Initiator_IdOrderByCreated(
                         eventId,
                         userId,
                         paging.getPageable(from, size)
@@ -315,7 +315,7 @@ public class CommentServiceImpl implements CommentService {
         return chain.andThen(
                 helper.fromPage(CommentResponseDto.class)
         ).apply(
-                commentRepository.findAllByAuthor_Id(
+                commentRepository.findAllByAuthor_IdOrderByCreated(
                         userId,
                         paging.getPageable(from, size)
                 )

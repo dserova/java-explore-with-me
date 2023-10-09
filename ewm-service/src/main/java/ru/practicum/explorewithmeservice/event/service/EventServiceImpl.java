@@ -19,6 +19,7 @@ import ru.practicum.explorewithmeservice.event.dto.EventResponseDto;
 import ru.practicum.explorewithmeservice.event.model.Event;
 import ru.practicum.explorewithmeservice.event.model.EventState;
 import ru.practicum.explorewithmeservice.event.model.EventStateUpdate;
+import ru.practicum.explorewithmeservice.event.model.SortState;
 import ru.practicum.explorewithmeservice.event.repository.EventRepository;
 import ru.practicum.explorewithmeservice.helpers.Helper;
 import ru.practicum.explorewithmeservice.helpers.Paging;
@@ -329,7 +330,7 @@ public class EventServiceImpl implements EventService {
             Calendar rangeStart,
             Calendar rangeEnd,
             Boolean onlyAvailable,
-            String sortState,
+            String sort,
             int from,
             int size,
             String ip,
@@ -337,6 +338,9 @@ public class EventServiceImpl implements EventService {
             String app,
             String addressStatistic
     ) {
+
+        SortState sortState = SortState.from(sort).orElse(null);
+
         if (rangeStart != null && rangeEnd != null) {
             if (rangeStart.after(rangeEnd)) {
                 throw new EventBadRequestException();
@@ -354,16 +358,11 @@ public class EventServiceImpl implements EventService {
                 helper.fromPage(EventResponseDto.class)
         ).andThen(
                 events -> {
-                    Thread thread = new Thread(() -> {
-                        EndpointHitDto statistic = new EndpointHitDto();
-                        statistic.setApp(app);
-                        statistic.setIp(ip);
-                        statistic.setUri(url);
-                        statistic.setTimestamp(Calendar.getInstance());
-                        ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
-                        clientCreateHit.createHit(statistic);
-                    });
-                    thread.start();
+                    // Thread problem in github, normal in local
+                    //Thread thread = new Thread(() -> {
+                    sendStatistic(ip, url, app, addressStatistic);
+                    //});
+                    //thread.start();
                     return events.stream().map(
                             event -> {
 
@@ -383,11 +382,21 @@ public class EventServiceImpl implements EventService {
                         paid,
                         finalRangeStart,
                         rangeEnd,
+                        String.valueOf(sortState),
                         onlyAvailable,
-                        sortState,
                         paging.getPageable(from, size)
                 )
         );
+    }
+
+    private void sendStatistic(String ip, String url, String app, String addressStatistic) {
+        EndpointHitDto statistic = new EndpointHitDto();
+        statistic.setApp(app);
+        statistic.setIp(ip);
+        statistic.setUri(url);
+        statistic.setTimestamp(Calendar.getInstance());
+        ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
+        clientCreateHit.createHit(statistic);
     }
 
     @Override
@@ -403,16 +412,11 @@ public class EventServiceImpl implements EventService {
                 helper.to(EventResponseDto.class)
         ).andThen(
                 event -> {
-                    Thread thread = new Thread(() -> {
-                        EndpointHitDto statistic = new EndpointHitDto();
-                        statistic.setApp(app);
-                        statistic.setIp(ip);
-                        statistic.setUri(url);
-                        statistic.setTimestamp(Calendar.getInstance());
-                        ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
-                        clientCreateHit.createHit(statistic);
-                    });
-                    thread.start();
+                    // Thread problem in github, normal in local
+                    //Thread thread = new Thread(() -> {
+                    sendStatistic(ip, url, app, addressStatistic);
+                    //});
+                    //thread.start();
 
                     ClientGetStats clientGetStats = new ClientGetStats(addressStatistic, builder);
 
@@ -423,9 +427,20 @@ public class EventServiceImpl implements EventService {
                 }
         ).andThen(
                 dto -> {
-                    List<Long> e = new ArrayList<>();
-                    e.add(eventId);
-                    Page<Comment> comments = commentRepository.getComments(null, null, e, null, null, null, null, true, CommentStatus.PUBLISHED, paging.getPageable(0, 1000));
+                    List<Long> events = new ArrayList<>();
+                    events.add(eventId);
+                    Page<Comment> comments = commentRepository.getComments(
+                            null,
+                            null,
+                            events,
+                            null,
+                            null,
+                            null,
+                            null,
+                            true,
+                            CommentStatus.PUBLISHED,
+                            paging.getPageable(0, 1000)
+                    );
 
                     List<Comment> filteredComments = comments.stream().peek(
                             m -> commentService.onlyPublish(m, CommentStatus.PUBLISHED)

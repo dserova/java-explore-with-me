@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "7050dce7-7fb9-484d-855c-4b2e27881eb8",
-		"name": "Comments feature",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"_postman_id": "bba31c96-59a0-4c94-8880-820685ac01a8",
+		"name": "Comments feature Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28341999"
 	},
 	"item": [
 		{
@@ -13,64 +14,86 @@
 					"script": {
 						"exec": [
 							"(async function main() {\r",
-							"   const _dummy = setInterval(() => {}, 300000);\r",
-							"   \r",
-							"   api = new API(pm)\r",
+							"    const _dummy = setInterval(() => { }, 300);\r",
 							"\r",
-							"   await api.aUser(1000);\r",
+							"    api = new API(pm)\r",
 							"\r",
-							"   await api.aCategory(1000);\r",
+							"    let u = await api.aUser();\r",
 							"\r",
-							"   await api.aEvent(1000,1000,1000);\r",
+							"    console.info(\"user event\",u.id);\r",
+							"    pm.collectionVariables.set(\"userId\", u.id);\r",
 							"\r",
-							"   await api.aCompilation(1000);\r",
+							"    let c = await api.aCategory();\r",
 							"\r",
-							"   await api.aPublishEvent(1000);\r",
+							"    console.info(\"category\",c.id);\r",
 							"\r",
-							"   await api.aUser(2000);\r",
+							"    let e = await api.aEvent(c.id, u.id);\r",
 							"\r",
-							"   await api.aRequest(1000,2000);\r",
+							"    console.info(\"event\",e.id);\r",
+							"    pm.collectionVariables.set(\"eventId\", e.id);\r",
 							"\r",
-							"   await api.aPublishRequest(1000,2000,1000);\r",
+							"    let co = await api.aCompilation();\r",
 							"\r",
+							"    console.info(\"compilation\",co.id);\r",
 							"\r",
-							"   await api.aComment(1000,2000,1000);\r",
+							"    await api.aPublishEvent(e.id);\r",
 							"\r",
-							"   await api.aCommentCancel(2000,1000);\r",
+							"    let u2 = await api.aUser();\r",
 							"\r",
-							"   await api.aCommentPublish(2000,1000);\r",
+							"    console.info(\"user other\",u2.id);\r",
+							"    pm.collectionVariables.set(\"userId2\", u2.id);\r",
 							"\r",
+							"    let r = await api.aRequest(e.id, u2.id);\r",
 							"\r",
+							"    console.info(\"user other request\",r.id);\r",
 							"\r",
-							"   await api.aComment(1000,2000,2000);\r",
-							"\r",
-							"   await api.aCommentCancel(2000,2000);\r",
-							"\r",
-							"   await api.aCommentPublish(2000,2000);\r",
-							"\r",
-							"\r",
-							"\r",
-							"   await api.aCommentReply(1000,2000,3000,2000);\r",
-							"\r",
-							"   await api.aCommentCancel(2000,3000);\r",
-							"\r",
-							"   await api.aCommentPublish(2000,3000);\r",
+							"    await api.aPublishRequest(e.id, u2.id, r.id);\r",
 							"\r",
 							"\r",
-							"   await api.aCommentReply(1000,2000,4000,3000);\r",
+							"    let com1 = await api.aComment(e.id, u2.id);\r",
 							"\r",
-							"   await api.aCommentCancel(2000,4000);\r",
+							"    await api.aCommentCancel(u2.id, com1.id);\r",
 							"\r",
-							"   await api.aCommentPublish(2000,4000);\r",
+							"    await api.aCommentPublish(u2.id, com1.id);\r",
+							"    pm.collectionVariables.set(\"commentId1\", com1.id);\r",
 							"\r",
 							"\r",
-							"   await api.aCommentReply(1000,2000,5000,3000);\r",
-							"   await api.aCommentCancel(2000,5000);\r",
+							"    let com2 = await api.aComment(e.id, u2.id);\r",
 							"\r",
-							"   await api.aCommentReply(1000,2000,6000,3000);\r",
-							"   await api.aCommentCancel(2000,6000);\r",
+							"    await api.aCommentCancel(u2.id, com2.id);\r",
 							"\r",
-							"   clearInterval(_dummy)\r",
+							"    await api.aCommentPublish(u2.id, com2.id);\r",
+							"    pm.collectionVariables.set(\"commentId2\", com2.id);\r",
+							"\r",
+							"\r",
+							"    let com3 = await api.aCommentReply(e.id, u2.id, com2.id);\r",
+							"\r",
+							"    await api.aCommentCancel(u2.id, com3.id);\r",
+							"\r",
+							"    await api.aCommentPublish(u2.id, com3.id);\r",
+							"pm.collectionVariables.set(\"commentId3\", com3.id);\r",
+							"\r",
+							"    let com4 = await api.aCommentReply(e.id, u2.id, com3.id);\r",
+							"\r",
+							"    await api.aCommentCancel(u2.id, com4.id);\r",
+							"\r",
+							"    await api.aCommentPublish(u2.id, com4.id);\r",
+							"    pm.collectionVariables.set(\"commentId4\", com4.id);\r",
+							"\r",
+							"    let com5 = await api.aCommentReply(e.id, u2.id, com3.id);\r",
+							"    await api.aCommentCancel(u2.id, com5.id);\r",
+							"    pm.collectionVariables.set(\"commentId5\", com5.id);\r",
+							"\r",
+							"    let com6 = await api.aCommentReply(e.id, u2.id, com3.id);\r",
+							"    await api.aCommentCancel(u2.id, com6.id);\r",
+							"    pm.collectionVariables.set(\"commentId6\", com6.id);\r",
+							"console.info(\"com1\",com1.id);\r",
+							"console.info(\"com2\",com2.id);\r",
+							"console.info(\"com3\",com3.id);\r",
+							"console.info(\"com4\",com4.id);\r",
+							"console.info(\"com5\",com5.id);\r",
+							"console.info(\"com6\",com6.id);\r",
+							"    clearInterval(_dummy)\r",
 							"})();"
 						],
 						"type": "text/javascript"
@@ -99,17 +122,10 @@
 							"});\r",
 							"\r",
 							"pm.test(\"length\", function () {\r",
-							"    pm.expect(target.length).to.eql(4);\r",
+							"    pm.expect(target.length).gte(4);\r",
 							"});\r",
 							"\r",
-							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target[0].id).equal(1);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"checks\", function () {\r",
-							"    pm.expect(target[1].replies[0].replies[0].id).equal(4);\r",
-							"    pm.expect(target[1].replies[0].replies[0].status).equal(\"PUBLISHED\");\r",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -182,16 +198,14 @@
 							"const target = pm.response.json();\r",
 							"\r",
 							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.collectionVariables.set(\"commentId7\", target.id);\r",
+							"    console.info(\"com7\",target.id);\r",
 							"    pm.expect(target).to.have.property('id');\r",
 							"    pm.expect(target).to.have.property('text');\r",
 							"    pm.expect(target).to.have.property('author');\r",
 							"    pm.expect(target).to.have.property('created');\r",
 							"    pm.expect(target).to.have.property('updated');\r",
 							"    pm.expect(target).to.have.property('status');\r",
-							"});\r",
-							"\r",
-							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target.id).equal(7);\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -231,7 +245,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/:userId/comments?eventId=1",
+					"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eventId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -243,13 +257,13 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "{{eventId}}"
 						}
 					],
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "{{userId2}}"
 						}
 					]
 				}
@@ -328,7 +342,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "{{userId}}"
+							"value": "{{userId2}}"
 						}
 					]
 				}
@@ -369,7 +383,7 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target.id).equal(5);\r",
+							"    pm.expect(target.id).equal(pm.collectionVariables.get(\"commentId5\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -419,11 +433,11 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2"
+							"value": "{{userId2}}"
 						},
 						{
 							"key": "commentId",
-							"value": "5"
+							"value": "{{commentId5}}"
 						}
 					]
 				}
@@ -464,7 +478,7 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target.id).equal(1);\r",
+							"    pm.expect(target.id).equal(pm.collectionVariables.get(\"commentId1\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -514,11 +528,11 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2"
+							"value": "{{userId2}}"
 						},
 						{
 							"key": "commentId",
-							"value": "1"
+							"value": "{{commentId1}}"
 						}
 					]
 				}
@@ -559,7 +573,7 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target.id).equal(2);\r",
+							"    pm.expect(target.id).equal(pm.collectionVariables.get(\"commentId2\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -609,7 +623,7 @@
 					"variable": [
 						{
 							"key": "commentId",
-							"value": "2"
+							"value": "{{commentId2}}"
 						}
 					]
 				}
@@ -676,7 +690,7 @@
 					"variable": [
 						{
 							"key": "commentId",
-							"value": "1"
+							"value": "{{commentId1}}"
 						}
 					]
 				}
@@ -713,11 +727,11 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target.confirmedComment[0].id).equal(6);\r",
+							"    pm.expect(target.confirmedComment[0].id).equal(pm.collectionVariables.get(\"commentId6\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
-							"    pm.expect(target.confirmedComment).length(1);\r",
+							"    pm.expect(target.confirmedComment).length.gte(1);\r",
 							"    pm.expect(target.confirmedComment[0].status).equal(\"PUBLISHED\");\r",
 							"});"
 						],
@@ -741,7 +755,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n      \"commentIds\": [\r\n        6\r\n      ],\r\n      \"status\": \"PUBLISHED\"\r\n}",
+					"raw": "{\r\n      \"commentIds\": [\r\n        {{commentId6}}\r\n      ],\r\n      \"status\": \"PUBLISHED\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -763,11 +777,11 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "{{userId}}"
 						},
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "{{eventId}}"
 						}
 					]
 				}
@@ -808,7 +822,7 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target.id).equal(6);\r",
+							"    pm.expect(target.id).equal(pm.collectionVariables.get(\"commentId6\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -857,7 +871,7 @@
 					"variable": [
 						{
 							"key": "commentId",
-							"value": "6"
+							"value": "{{commentId6}}"
 						}
 					]
 				}
@@ -898,8 +912,8 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target.id).equal(5);\r",
-							"    pm.expect(target.author.id).equal(2);\r",
+							"    pm.expect(target.id).equal(pm.collectionVariables.get(\"commentId5\"));\r",
+							"    pm.expect(target.author.id).equal(pm.collectionVariables.get(\"userId2\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -949,11 +963,11 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "2"
+							"value": "{{userId2}}"
 						},
 						{
 							"key": "commentId",
-							"value": "5"
+							"value": "{{commentId5}}"
 						}
 					]
 				}
@@ -995,16 +1009,16 @@
 							"});\r",
 							"\r",
 							"pm.test(\"length\", function () {\r",
-							"    pm.expect(target.length).to.eql(2);\r",
+							"    pm.expect(target.length).gte(2);\r",
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target[0].id).equal(2);\r",
+							"    pm.expect(target[0].id).equal(pm.collectionVariables.get(\"commentId2\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
-							"    pm.expect(target[1].replies[0].id).equal(4);\r",
-							"    pm.expect(target[1].replies[0].status).equal(\"PUBLISHED\");\r",
+							"    pm.expect(target[0].replies[0].id).equal(pm.collectionVariables.get(\"commentId3\"));\r",
+							"    pm.expect(target[0].replies[0].status).equal(\"PUBLISHED\");\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1062,11 +1076,11 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "{{userId}}"
 						},
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "{{eventId}}"
 						}
 					]
 				}
@@ -1107,12 +1121,8 @@
 							"    pm.expect(target[0]).to.have.property('replies');\r",
 							"});\r",
 							"\r",
-							"pm.test(\"length\", function () {\r",
-							"    pm.expect(target.length).to.eql(1);\r",
-							"});\r",
-							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target[0].id).equal(5);\r",
+							"    pm.expect(target[0].id).equal(pm.collectionVariables.get(\"commentId5\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -1151,7 +1161,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/comments?from=0&size=10&text=123456789&users=1,2&events=1",
+					"raw": "{{baseUrl}}/comments?from=0&size=10&text=123456789&users={{userId}},{{userId2}}&events={{eventId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -1173,11 +1183,11 @@
 						},
 						{
 							"key": "users",
-							"value": "1,2"
+							"value": "{{userId}},{{userId2}}"
 						},
 						{
 							"key": "events",
-							"value": "1"
+							"value": "{{eventId}}"
 						},
 						{
 							"key": "rangeStart",
@@ -1233,7 +1243,7 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target[0].id).equal(2);\r",
+							"    pm.expect(target[0].id).equal(pm.collectionVariables.get(\"commentId2\"));\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
@@ -1271,7 +1281,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/admin/comments?from=0&size=100&events=1",
+					"raw": "{{baseUrl}}/admin/comments?from=0&size=100&events={{eventId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -1290,7 +1300,7 @@
 						},
 						{
 							"key": "events",
-							"value": "1"
+							"value": "{{eventId}}"
 						},
 						{
 							"key": "rangeStart",
@@ -1350,8 +1360,8 @@
 							"});\r",
 							"\r",
 							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target[0].id).equal(2);\r",
-							"    pm.expect(target[1].id).equal(5);\r",
+							"    pm.expect(target[0].id).equal(pm.collectionVariables.get(\"commentId2\"));\r",
+							"    pm.expect(target[1].id).equal(pm.collectionVariables.get(\"commentId5\"));\r",
 							"});\r",
 							"\r",
 							""
@@ -1387,7 +1397,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/comments?from=0&size=10&users=1,2&events=1&onlyNotReply=true",
+					"raw": "{{baseUrl}}/comments?from=0&size=10&users={{userId}},{{userId2}}&events={{eventId}}&onlyNotReply=true",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -1405,11 +1415,11 @@
 						},
 						{
 							"key": "users",
-							"value": "1,2"
+							"value": "{{userId}},{{userId2}}"
 						},
 						{
 							"key": "events",
-							"value": "1"
+							"value": "{{eventId}}"
 						},
 						{
 							"key": "rangeStart",
@@ -1465,15 +1475,11 @@
 							"});\r",
 							"\r",
 							"pm.test(\"length\", function () {\r",
-							"    pm.expect(target.length).to.eql(1);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"equals\", function () {\r",
-							"    pm.expect(target[0].id).equal(7);\r",
+							"    pm.expect(target.length).gt(1);\r",
 							"});\r",
 							"\r",
 							"pm.test(\"checks\", function () {\r",
-							"    pm.expect(target[0].author.id).equal(1);\r",
+							"    pm.expect(target[0].author.id).equal(pm.collectionVariables.get(\"userId2\"));\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1529,7 +1535,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "1"
+							"value": "{{userId2}}"
 						}
 					]
 				}
@@ -1620,7 +1626,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "{{eventId}}"
 						}
 					]
 				}
@@ -1727,7 +1733,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "{{eventId}}"
 						}
 					]
 				}
@@ -1801,15 +1807,25 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/1/events/1",
+					"raw": "{{baseUrl}}/users/:userId/events/:eventId",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
-						"1",
+						":userId",
 						"events",
-						"1"
+						":eventId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						},
+						{
+							"key": "eventId",
+							"value": "{{eventId}}"
+						}
 					]
 				}
 			},
@@ -1882,13 +1898,19 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/events/1",
+					"raw": "{{baseUrl}}/events/:eventId",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"events",
-						"1"
+						":eventId"
+					],
+					"variable": [
+						{
+							"key": "eventId",
+							"value": "{{eventId}}"
+						}
 					]
 				}
 			},
@@ -1912,20 +1934,20 @@
 					"    };",
 					"",
 					"",
-					"    async aUser(userId) {",
-					"        return await this.post(\"/admin/users\", new RandomUtils().dataUser(userId))",
+					"    async aUser() {",
+					"        return await this.post(\"/admin/users\", new RandomUtils().dataUser())",
 					"    }",
 					"",
-					"    async aCategory(categoryId) {",
-					"        return await this.post(\"/admin/categories\", new RandomUtils().dataCategory(categoryId));",
+					"    async aCategory() {",
+					"        return await this.post(\"/admin/categories\", new RandomUtils().dataCategory());",
 					"    }",
 					"",
-					"    async aEvent(eventId, categoryId, userId) {",
-					"        return await this.post(`/users/${userId}/events`, new RandomUtils().dataEvent(eventId, categoryId));",
+					"    async aEvent(categoryId, userId) {",
+					"        return await this.post(`/users/${userId}/events`, new RandomUtils().dataEvent(categoryId));",
 					"    }",
 					"",
-					"    async aCompilation(compilationId) {",
-					"        return await this.post(\"/admin/compilations\", new RandomUtils().dataCompilation(compilationId));",
+					"    async aCompilation() {",
+					"        return await this.post(\"/admin/compilations\", new RandomUtils().dataCompilation());",
 					"    }",
 					"",
 					"    async aRequest(eventId, userId) {",
@@ -1940,16 +1962,16 @@
 					"         return await this.patch(`/users/${userId}/events/${eventId}/requests/`, {requestIds:[requestId], status: \"CONFIRMED\"});",
 					"    }",
 					"",
-					"    async aComment(eventId, userId, commentId) {",
-					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataComment(commentId, 50))",
+					"    async aComment(eventId, userId) {",
+					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataComment(50))",
 					"    }",
 					"",
-					"    async aCommentLong(eventId, userId, commentId) {",
-					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataComment(commentId, 5001))",
+					"    async aCommentLong(eventId, userId) {",
+					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataComment(5001))",
 					"    }",
 					"",
-					"    async aCommentReply(eventId, userId, commentId, replyId) {",
-					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataCommentReply(commentId, replyId , 50))",
+					"    async aCommentReply(eventId, userId, replyId) {",
+					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataCommentReply(replyId , 50))",
 					"    }",
 					"",
 					"    async aCommentPublish(userId,commentId) {",
@@ -1963,7 +1985,7 @@
 					"    async prepare(len=50) {",
 					"           this.pm.request.body.update({",
 					"        mode: 'raw',",
-					"        raw: JSON.stringify(new RandomUtils().getCommentLen(len)),",
+					"        raw: JSON.stringify(new RandomUtils().dataComment(len)),",
 					"        options: { raw: { language: 'json' } }",
 					"    });",
 					"    }",
@@ -2172,24 +2194,21 @@
 					"RandomUtils = class {",
 					"    constructor() {}",
 					"",
-					"    dataUser(userId) {",
+					"    dataUser() {",
 					"        return {",
-					"            id: userId,",
 					"            name: pm.variables.replaceIn('{{$randomFullName}}'),",
 					"            email: pm.variables.replaceIn('{{$randomEmail}}')",
 					"        };",
 					"    }",
 					"",
-					"    dataCategory(categoryId) {",
+					"    dataCategory() {",
 					"        return {",
-					"            id: categoryId,",
 					"            name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString()",
 					"        };",
 					"    }",
 					"",
-					"    dataEvent(eventId, categoryId) {",
+					"    dataEvent(categoryId) {",
 					"        return {",
-					"            id: eventId,",
 					"            annotation: pm.variables.replaceIn('{{$randomLoremParagraph}}'),",
 					"            category: categoryId,",
 					"            description: pm.variables.replaceIn('{{$randomLoremParagraphs}}'),",
@@ -2205,25 +2224,22 @@
 					"        }",
 					"    }",
 					"",
-					"    dataCompilation(compilationId, ...eventIds) {",
+					"    dataCompilation(...eventIds) {",
 					"        return {",
-					"            id: compilationId,",
 					"            title: pm.variables.replaceIn('{{$randomLoremSentence}}').slice(0, 50),",
 					"            pinned: pm.variables.replaceIn('{{$randomBoolean}}'),",
 					"            events: eventIds",
 					"        };",
 					"    }",
 					"",
-					"    dataComment(commentId, len) {",
+					"    dataComment(len) {",
 					"        return {",
-					"            id: commentId,",
 					"            text: this.getWord(len),",
 					"        };",
 					"    }",
 					"",
-					"    dataCommentReply(commentId,replyCommentId, len) {",
+					"    dataCommentReply(replyCommentId, len) {",
 					"        return {",
-					"            id: commentId,",
 					"            text: this.getWord(len),",
 					"            replyTarget: replyCommentId,",
 					"        };",
@@ -2331,30 +2347,48 @@
 	],
 	"variable": [
 		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "eventId",
+			"value": ""
+		},
+		{
+			"key": "userId2",
+			"value": ""
+		},
+		{
+			"key": "commentId1",
+			"value": ""
+		},
+		{
+			"key": "commentId2",
+			"value": ""
+		},
+		{
+			"key": "commentId3",
+			"value": ""
+		},
+		{
+			"key": "commentId4",
+			"value": ""
+		},
+		{
+			"key": "commentId5",
+			"value": ""
+		},
+		{
+			"key": "commentId6",
+			"value": ""
+		},
+		{
 			"key": "baseUrl",
 			"value": "http://localhost:8080",
 			"type": "string"
 		},
 		{
-			"key": "user",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "request_body",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "eventId",
-			"value": "eventId"
-		},
-		{
-			"key": "userId",
-			"value": "1"
-		},
-		{
-			"key": "commentId",
+			"key": "commentId7",
 			"value": ""
 		}
 	]

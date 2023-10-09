@@ -24,18 +24,19 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "and " +
             "c.event.id = :eventId " +
             "and " +
-            "c.event.initiator.id = :userId ")
+            "c.event.initiator.id = :userId " +
+            "order by c.created")
     List<Comment> updateMulti(
             Long userId,
             Long eventId,
             List<Long> commentIds
     );
 
-    Page<Comment> findAllByEvent_IdAndEvent_Initiator_Id(Long eventId, Long userId, Pageable pageable);
+    Page<Comment> findAllByEvent_IdAndEvent_Initiator_IdOrderByCreated(Long eventId, Long userId, Pageable pageable);
 
     Optional<Comment> findByRepliesContains(Comment replies);
 
-    Page<Comment> findAllByAuthor_Id(Long userId, Pageable pageable);
+    Page<Comment> findAllByAuthor_IdOrderByCreated(Long userId, Pageable pageable);
 
     @Query("select c " +
             "from Comment c " +
@@ -93,7 +94,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "                  OR " +
             "                  ((:onlyNotReply) IS null)" +
             "                  OR " +
-            "                  ((:onlyNotReply) = false)) ")
+            "                  ((:onlyNotReply) = false)) " +
+            "order by c.created")
     Page<Comment> getComments(
             @Param("text") String text,
             @Param("users") List<Long> users,
