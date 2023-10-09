@@ -8,7 +8,7 @@ public class EventBadRequestException extends RuntimeException {
     HttpStatus httpStatus;
 
     public EventBadRequestException() {
-        super("User error request");
+        super("Event error request");
     }
 
     public EventBadRequestException(String message) {

@@ -8,7 +8,7 @@ public class EventConflictException extends RuntimeException {
     HttpStatus httpStatus;
 
     public EventConflictException() {
-        super("User error request");
+        super("Event error request");
     }
 
     public EventConflictException(String message) {

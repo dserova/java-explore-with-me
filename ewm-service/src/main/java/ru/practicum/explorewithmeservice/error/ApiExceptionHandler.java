@@ -199,4 +199,43 @@ public class ApiExceptionHandler {
                 currentMethod.getAnnotation(ResponseStatus.class).value()
         );
     }
+
+    @ExceptionHandler({
+            CommentNotFoundException.class
+    })
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorItem handle(CommentNotFoundException e) throws NoSuchMethodException {
+        Method currentMethod = getClass().getMethod(handleName, e.getClass());
+        return handleCustomErrorItem(
+                e.getLocalizedMessage(),
+                Objects.requireNonNull(AnnotationUtils.getAnnotation(e.getClass(), ResponseStatus.class)).reason(),
+                currentMethod.getAnnotation(ResponseStatus.class).value()
+        );
+    }
+
+    @ExceptionHandler({
+            CommentBadRequestException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorItem handle(CommentBadRequestException e) throws NoSuchMethodException {
+        Method currentMethod = getClass().getMethod(handleName, e.getClass());
+        return handleCustomErrorItem(
+                "incorrect",
+                Objects.requireNonNull(AnnotationUtils.getAnnotation(e.getClass(), ResponseStatus.class)).reason(),
+                currentMethod.getAnnotation(ResponseStatus.class).value()
+        );
+    }
+
+    @ExceptionHandler({
+            CommentConflictException.class
+    })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorItem handle(CommentConflictException e) throws NoSuchMethodException {
+        Method currentMethod = getClass().getMethod(handleName, e.getClass());
+        return handleCustomErrorItem(
+                "incorrect",
+                Objects.requireNonNull(AnnotationUtils.getAnnotation(e.getClass(), ResponseStatus.class)).reason(),
+                currentMethod.getAnnotation(ResponseStatus.class).value()
+        );
+    }
 }

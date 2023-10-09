@@ -1,0 +1,2362 @@
+{
+	"info": {
+		"_postman_id": "261d081b-0bb3-4687-8fc9-00b7474af0e8",
+		"name": "Comments feature",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28341999"
+	},
+	"item": [
+		{
+			"name": "GET AND PREPARE",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"(async function main() {\r",
+							"   const _dummy = setInterval(() => {}, 300000);\r",
+							"   \r",
+							"   api = new API(pm)\r",
+							"\r",
+							"   await api.aUser(1);\r",
+							"\r",
+							"   await api.aCategory(1);\r",
+							"\r",
+							"   await api.aEvent(1,1,1);\r",
+							"\r",
+							"   await api.aCompilation(1);\r",
+							"\r",
+							"   await api.aPublishEvent(1);\r",
+							"\r",
+							"   await api.aUser(2);\r",
+							"\r",
+							"   await api.aRequest(1,2);\r",
+							"\r",
+							"   await api.aPublishRequest(1,2,1);\r",
+							"\r",
+							"\r",
+							"   await api.aComment(1,2,1);\r",
+							"\r",
+							"   await api.aCommentCancel(2,1);\r",
+							"\r",
+							"   await api.aCommentPublish(2,1);\r",
+							"\r",
+							"\r",
+							"\r",
+							"   await api.aComment(1,2,2);\r",
+							"\r",
+							"   await api.aCommentCancel(2,2);\r",
+							"\r",
+							"   await api.aCommentPublish(2,2);\r",
+							"\r",
+							"\r",
+							"\r",
+							"   await api.aCommentReply(1,2,3,2);\r",
+							"\r",
+							"   await api.aCommentCancel(2,3);\r",
+							"\r",
+							"   await api.aCommentPublish(2,3);\r",
+							"\r",
+							"\r",
+							"   await api.aCommentReply(1,2,4,3);\r",
+							"\r",
+							"   await api.aCommentCancel(2,4);\r",
+							"\r",
+							"   await api.aCommentPublish(2,4);\r",
+							"\r",
+							"\r",
+							"   await api.aCommentReply(1,2,5,3);\r",
+							"   await api.aCommentCancel(2,5);\r",
+							"\r",
+							"   await api.aCommentReply(1,2,6,3);\r",
+							"   await api.aCommentCancel(2,6);\r",
+							"\r",
+							"   clearInterval(_dummy)\r",
+							"})();"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target[0]).to.have.property('id');\r",
+							"    pm.expect(target[0]).to.have.property('text');\r",
+							"    pm.expect(target[0]).to.have.property('author');\r",
+							"    pm.expect(target[0]).to.have.property('created');\r",
+							"    pm.expect(target[0]).to.have.property('updated');\r",
+							"    pm.expect(target[0]).to.have.property('status');\r",
+							"    pm.expect(target[0]).to.have.property('replies');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"length\", function () {\r",
+							"    pm.expect(target.length).to.eql(4);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target[0].id).equal(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target[1].replies[0].replies[0].id).equal(4);\r",
+							"    pm.expect(target[1].replies[0].replies[0].status).equal(\"PUBLISHED\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"try {\r",
+							"    new API(pm).prepare();\r",
+							"} catch(err) {\r",
+							"    console.error(\"testing error\", err);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 201, json\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('id');\r",
+							"    pm.expect(target).to.have.property('text');\r",
+							"    pm.expect(target).to.have.property('author');\r",
+							"    pm.expect(target).to.have.property('created');\r",
+							"    pm.expect(target).to.have.property('updated');\r",
+							"    pm.expect(target).to.have.property('status');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target.id).equal(7);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"if (target.event.requestModeration==true) {\r",
+							"    pm.expect(target.status).equal(\"MODERATION\");\r",
+							"} else {\r",
+							"    pm.expect(target.status).equal(\"PUBLISHED\");\r",
+							"}\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/comments?eventId=1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "1"
+						}
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE FAIL LEN",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"try {\r",
+							"    new API(pm).prepare(5001);\r",
+							"} catch(err) {\r",
+							"    console.error(\"testing error\", err);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 400, json\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eventId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "{{eventId}}"
+						}
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "{{userId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE PUBLISH",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('id');\r",
+							"    pm.expect(target).to.have.property('text');\r",
+							"    pm.expect(target).to.have.property('author');\r",
+							"    pm.expect(target).to.have.property('created');\r",
+							"    pm.expect(target).to.have.property('updated');\r",
+							"    pm.expect(target).to.have.property('status');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target.id).equal(5);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target.replies).empty;\r",
+							"    pm.expect(target.status).equal(\"PUBLISHED\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/comments/:commentId/publish",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"comments",
+						":commentId",
+						"publish"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "2"
+						},
+						{
+							"key": "commentId",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE DRAFT",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('id');\r",
+							"    pm.expect(target).to.have.property('text');\r",
+							"    pm.expect(target).to.have.property('author');\r",
+							"    pm.expect(target).to.have.property('created');\r",
+							"    pm.expect(target).to.have.property('updated');\r",
+							"    pm.expect(target).to.have.property('status');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target.id).equal(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target.replies).empty;\r",
+							"    pm.expect(target.status).equal(\"DRAFT\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/comments/:commentId/draft",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"comments",
+						":commentId",
+						"draft"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "2"
+						},
+						{
+							"key": "commentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENT",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('id');\r",
+							"    pm.expect(target).to.have.property('text');\r",
+							"    pm.expect(target).to.have.property('author');\r",
+							"    pm.expect(target).to.have.property('created');\r",
+							"    pm.expect(target).to.have.property('updated');\r",
+							"    pm.expect(target).to.have.property('status');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target.id).equal(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target.replies).length(1);\r",
+							"    pm.expect(target.status).equal(\"PUBLISHED\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/comments/:commentId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"comments",
+						":commentId"
+					],
+					"variable": [
+						{
+							"key": "commentId",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE COMMENT",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 204\", function () {\r",
+							"    pm.response.to.be.success;    \r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/comments/:commentId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"comments",
+						":commentId"
+					],
+					"variable": [
+						{
+							"key": "commentId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists\", function () {\r",
+							"    pm.expect(target).to.have.property('confirmedComment');\r",
+							"    pm.expect(target).to.have.property('rejectedComment');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target.confirmedComment[0].id).equal(6);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target.confirmedComment).length(1);\r",
+							"    pm.expect(target.confirmedComment[0].status).equal(\"PUBLISHED\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n      \"commentIds\": [\r\n        6\r\n      ],\r\n      \"status\": \"PUBLISHED\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"events",
+						":eventId",
+						"comments"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						},
+						{
+							"key": "eventId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE ADMIN",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('id');\r",
+							"    pm.expect(target).to.have.property('text');\r",
+							"    pm.expect(target).to.have.property('author');\r",
+							"    pm.expect(target).to.have.property('created');\r",
+							"    pm.expect(target).to.have.property('updated');\r",
+							"    pm.expect(target).to.have.property('status');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target.id).equal(6);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target.replies).length(0);\r",
+							"    pm.expect(target.status).equal(\"DRAFT\");\r",
+							"    pm.expect(target.text).equal(\"123456789\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n      \"text\": \"123456789\",\r\n      \"status\": \"DRAFT\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/comments/:commentId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"comments",
+						":commentId"
+					],
+					"variable": [
+						{
+							"key": "commentId",
+							"value": "6"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE BY USER",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('id');\r",
+							"    pm.expect(target).to.have.property('text');\r",
+							"    pm.expect(target).to.have.property('author');\r",
+							"    pm.expect(target).to.have.property('created');\r",
+							"    pm.expect(target).to.have.property('updated');\r",
+							"    pm.expect(target).to.have.property('status');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target.id).equal(5);\r",
+							"    pm.expect(target.author.id).equal(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target.replies).length(0);\r",
+							"    pm.expect(target.status).equal(\"PUBLISHED\");\r",
+							"    pm.expect(target.text).equal(\"12345678900\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n      \"text\": \"12345678900\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/comments/:commentId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"comments",
+						":commentId"
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "2"
+						},
+						{
+							"key": "commentId",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENTS FOR EVENT AND EVENT USER",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target[0]).to.have.property('id');\r",
+							"    pm.expect(target[0]).to.have.property('text');\r",
+							"    pm.expect(target[0]).to.have.property('author');\r",
+							"    pm.expect(target[0]).to.have.property('created');\r",
+							"    pm.expect(target[0]).to.have.property('updated');\r",
+							"    pm.expect(target[0]).to.have.property('status');\r",
+							"    pm.expect(target[0]).to.have.property('replies');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"length\", function () {\r",
+							"    pm.expect(target.length).to.eql(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target[0].id).equal(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target[1].replies[0].id).equal(4);\r",
+							"    pm.expect(target[1].replies[0].status).equal(\"PUBLISHED\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/events/:eventId/comments?from=0&size=2",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"events",
+						":eventId",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "2"
+						}
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						},
+						{
+							"key": "eventId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENTS FILTER",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target[0]).to.have.property('id');\r",
+							"    pm.expect(target[0]).to.have.property('text');\r",
+							"    pm.expect(target[0]).to.have.property('author');\r",
+							"    pm.expect(target[0]).to.have.property('created');\r",
+							"    pm.expect(target[0]).to.have.property('updated');\r",
+							"    pm.expect(target[0]).to.have.property('status');\r",
+							"    pm.expect(target[0]).to.have.property('replies');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"length\", function () {\r",
+							"    pm.expect(target.length).to.eql(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target[0].id).equal(5);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target[0].status).equal(\"PUBLISHED\");\r",
+							"    pm.expect(target[0].text).contain(\"123456789\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/comments?from=0&size=10&text=123456789&users=1,2&events=1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"comments"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "text",
+							"value": "123456789"
+						},
+						{
+							"key": "users",
+							"value": "1,2"
+						},
+						{
+							"key": "events",
+							"value": "1"
+						},
+						{
+							"key": "rangeStart",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "rangeEnd",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENTS FILTER ALL",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target[0]).to.have.property('id');\r",
+							"    pm.expect(target[0]).to.have.property('text');\r",
+							"    pm.expect(target[0]).to.have.property('author');\r",
+							"    pm.expect(target[0]).to.have.property('created');\r",
+							"    pm.expect(target[0]).to.have.property('updated');\r",
+							"    pm.expect(target[0]).to.have.property('status');\r",
+							"    pm.expect(target[0]).to.have.property('replies');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"length\", function () {\r",
+							"    pm.expect(target.length).to.eql(6);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target[0].id).equal(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target[0].status).equal(\"PUBLISHED\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/comments?from=0&size=100&events=1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "100"
+						},
+						{
+							"key": "events",
+							"value": "1"
+						},
+						{
+							"key": "rangeStart",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "rangeEnd",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENTS FILTER ONLY ROOT",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target[0]).to.have.property('id');\r",
+							"    pm.expect(target[0]).to.have.property('text');\r",
+							"    pm.expect(target[0]).to.have.property('author');\r",
+							"    pm.expect(target[0]).to.have.property('created');\r",
+							"    pm.expect(target[0]).to.have.property('updated');\r",
+							"    pm.expect(target[0]).to.have.property('status');\r",
+							"    pm.expect(target[0]).to.have.property('replies');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"length\", function () {\r",
+							"    if (target[0].event.requestModeration==true) {\r",
+							"    pm.expect(target.length).to.eql(2);\r",
+							"} else {\r",
+							"    pm.expect(target.length).to.eql(3);\r",
+							"}\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target[0].id).equal(2);\r",
+							"    pm.expect(target[1].id).equal(5);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/comments?from=0&size=10&users=1,2&events=1&onlyNotReply=true",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"comments"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "users",
+							"value": "1,2"
+						},
+						{
+							"key": "events",
+							"value": "1"
+						},
+						{
+							"key": "rangeStart",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "rangeEnd",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "onlyNotReply",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENTS BY USER",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target[0]).to.have.property('id');\r",
+							"    pm.expect(target[0]).to.have.property('text');\r",
+							"    pm.expect(target[0]).to.have.property('author');\r",
+							"    pm.expect(target[0]).to.have.property('created');\r",
+							"    pm.expect(target[0]).to.have.property('updated');\r",
+							"    pm.expect(target[0]).to.have.property('status');\r",
+							"    pm.expect(target[0]).to.have.property('replies');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"length\", function () {\r",
+							"    pm.expect(target.length).to.eql(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"equals\", function () {\r",
+							"    pm.expect(target[0].id).equal(7);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    pm.expect(target[0].author.id).equal(1);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/:userId/comments?from=0&size=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						":userId",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						}
+					],
+					"variable": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENTS BY EVENT MODERATION",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/events/:eventId/comments?from=0&size=10&status=MODERATION",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"events",
+						":eventId",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "status",
+							"value": "MODERATION"
+						}
+					],
+					"variable": [
+						{
+							"key": "eventId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET COMMENTS BY EVENT PUBLISHED",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target[0]).to.have.property('id');\r",
+							"    pm.expect(target[0]).to.have.property('text');\r",
+							"    pm.expect(target[0]).to.have.property('author');\r",
+							"    pm.expect(target[0]).to.have.property('created');\r",
+							"    pm.expect(target[0]).to.have.property('updated');\r",
+							"    pm.expect(target[0]).to.have.property('status');\r",
+							"    pm.expect(target[0]).to.have.property('replies');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"length\", function () {\r",
+							"    if (target[0].event.requestModeration==true) {\r",
+							"    pm.expect(target.length).to.eql(4);\r",
+							"} else {\r",
+							"    pm.expect(target.length).to.eql(5);\r",
+							"}\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/events/:eventId/comments?from=0&size=10&status=PUBLISHED",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"events",
+						":eventId",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "status",
+							"value": "PUBLISHED"
+						}
+					],
+					"variable": [
+						{
+							"key": "eventId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET EVENT WITH COMMENTS",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('comments');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    if (target.requestModeration==true) {\r",
+							"    pm.expect(target.comments).length(2);\r",
+							"} else {\r",
+							"    pm.expect(target.comments).length(3);\r",
+							"}\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/1/events/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"events",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET EVENT WITH COMMENTS 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status 200, json\", function () {\r",
+							"    pm.response.to.be.ok;    \r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"const target = pm.response.json();\r",
+							"\r",
+							"pm.test(\"exists: id, text, author, created, updated, status\", function () {\r",
+							"    pm.expect(target).to.have.property('comments');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"checks\", function () {\r",
+							"    if (target.requestModeration==true) {\r",
+							"    pm.expect(target.comments).length(2);\r",
+							"} else {\r",
+							"    pm.expect(target.comments).length(3);\r",
+							"}\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/events/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"events",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"API = class {",
+					"    constructor(postman, verbose = false, baseUrl = \"http://localhost:8080\") {",
+					"        this.baseUrl = baseUrl;",
+					"        this.pm = postman;",
+					"    }",
+					"",
+					"    dUser = function(userId){",
+					"        this.delete(`/admin/users/${userId}`);",
+					"    };",
+					"",
+					"",
+					"    async aUser(userId) {",
+					"        return await this.post(\"/admin/users\", new RandomUtils().dataUser(userId))",
+					"    }",
+					"",
+					"    async aCategory(categoryId) {",
+					"        return await this.post(\"/admin/categories\", new RandomUtils().dataCategory(categoryId));",
+					"    }",
+					"",
+					"    async aEvent(eventId, categoryId, userId) {",
+					"        return await this.post(`/users/${userId}/events`, new RandomUtils().dataEvent(eventId, categoryId));",
+					"    }",
+					"",
+					"    async aCompilation(compilationId) {",
+					"        return await this.post(\"/admin/compilations\", new RandomUtils().dataCompilation(compilationId));",
+					"    }",
+					"",
+					"    async aRequest(eventId, userId) {",
+					"        return await this.post(`/users/${userId}/requests?eventId=${eventId}`, null);",
+					"    }",
+					"",
+					"    async aPublishEvent(eventId) {",
+					"        return await this.patch(`/admin/events/${eventId}`, {stateAction: \"PUBLISH_EVENT\"});",
+					"    }",
+					"",
+					"    async aPublishRequest(eventId, userId, requestId) {",
+					"         return await this.patch(`/users/${userId}/events/${eventId}/requests/`, {requestIds:[requestId], status: \"CONFIRMED\"});",
+					"    }",
+					"",
+					"    async aComment(eventId, userId, commentId) {",
+					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataComment(commentId, 50))",
+					"    }",
+					"",
+					"    async aCommentLong(eventId, userId, commentId) {",
+					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataComment(commentId, 5001))",
+					"    }",
+					"",
+					"    async aCommentReply(eventId, userId, commentId, replyId) {",
+					"         return await this.post(`/users/${userId}/comments?eventId=${eventId}`, new RandomUtils().dataCommentReply(commentId, replyId , 50))",
+					"    }",
+					"",
+					"    async aCommentPublish(userId,commentId) {",
+					"        return await this.patch(`/users/${userId}/comments/${commentId}/publish`, null);",
+					"    }",
+					"",
+					"    async aCommentCancel(userId,commentId) {",
+					"        return await this.patch(`/users/${userId}/comments/${commentId}/draft`, null);",
+					"    }",
+					"",
+					"    async prepare(len=50) {",
+					"           this.pm.request.body.update({",
+					"        mode: 'raw',",
+					"        raw: JSON.stringify(new RandomUtils().getCommentLen(len)),",
+					"        options: { raw: { language: 'json' } }",
+					"    });",
+					"    }",
+					"",
+					"    async prepareFail1(len=50) {",
+					"        this.pm.collectionVariables.set(\"userId\", 999999);",
+					"        this.pm.collectionVariables.set(\"eventId\", 999999);",
+					"        this.pm.request.body.update({",
+					"        mode: 'raw',",
+					"        raw: JSON.stringify(new RandomUtils().getCommentLen(len)),",
+					"        options: { raw: { language: 'json' } }",
+					"    });",
+					"    }",
+					"",
+					"    async prepareFail2(len=50) {",
+					"        this.addEvent();",
+					"        this.pm.request.body.update({",
+					"        mode: 'raw',",
+					"        raw: JSON.stringify(new RandomUtils().getCommentLen(len)),",
+					"        options: { raw: { language: 'json' } }",
+					"    });",
+					"    }",
+					"",
+					"    async addCommentTo(eventId, userId) {",
+					"        await this.findEvent(eventId).then(",
+					"            ttt => console.info(ttt),() => this.addEvent()",
+					"        ).then(",
+					"            () => this.publishEvent(eventId)",
+					"        );",
+					"        return await this.post(\"/users/\" + userId + \"/comments?eventId=\"+ eventId, new RandomUtils().getCommentLen(55)).then(",
+					"           comment => {",
+					"               this.pm.collectionVariables.set(\"commentId\", comment.id);",
+					"               return comment;",
+					"           }",
+					"        )",
+					"    }",
+					"",
+					"    async addCommentPublishTo(eventId, userId) {",
+					"        await this.findEvent(eventId).then(",
+					"            ttt => console.info(ttt),() =>{",
+					"               this.addEvent().then(() => this.publishEvent(eventId));",
+					"",
+					"            } ",
+					"        );",
+					"        return await this.post(\"/users/\" + userId + \"/comments?eventId=\"+ eventId, new RandomUtils().getCommentLen(55)).then(",
+					"           comment => {",
+					"               this.pm.collectionVariables.set(\"commentId\", comment.id);",
+					"               this.publishEvent(userId,comment.id)",
+					"               return comment;",
+					"           }",
+					"        )",
+					"    }",
+					"",
+					"    async addComment() {",
+					"        event = await this.addEvent();",
+					"        await this.publishEvent(event.id);",
+					"        userId = this.pm.collectionVariables.get(\"userId\");",
+					"        eventId = this.pm.collectionVariables.get(\"eventId\");",
+					"        return await this.post(\"/users/\" + event.initiator.id + \"/comments?eventId=\"+ event.id, new RandomUtils().getCommentLen(55)).then(",
+					"           comment => {",
+					"               this.pm.collectionVariables.set(\"commentId\", comment.id);",
+					"               return comment;",
+					"           }",
+					"        )",
+					"    }",
+					"",
+					"    async addCommentWithText() {",
+					"         event = await this.addEvent();",
+					"        await this.publishEvent(event.id);",
+					"        userId = this.pm.collectionVariables.get(\"userId\");",
+					"        eventId = this.pm.collectionVariables.get(\"eventId\");",
+					"        return await this.post(\"/users/\" + event.initiator.id + \"/comments?eventId=\"+ event.id, new RandomUtils().getCommentStatic()).then(",
+					"           comment => {",
+					"               this.pm.collectionVariables.set(\"commentId\", comment.id);",
+					"               return comment;",
+					"           }",
+					"        )",
+					"    }",
+					"",
+					"    async addCommentForUser(userId, eventId) {",
+					"        return await this.post(\"/users/\" + userId + \"/comments?eventId=\"+eventId, new RandomUtils().getCommentLen(55)).then(",
+					"           comment => {",
+					"               this.pm.collectionVariables.set(\"commentId\", comment.id);",
+					"               return comment;",
+					"           }",
+					"        )",
+					"    }",
+					"",
+					"",
+					"    async addUser(user) {",
+					"        return await this.post(\"/admin/users\", user).then(",
+					"           user => {",
+					"               this.pm.collectionVariables.set(\"userId\", user.id);",
+					"               return user;",
+					"           }",
+					"        )",
+					"    }",
+					"",
+					"    async addCategory() {",
+					"        return this.post(\"/admin/categories\", new RandomUtils().getCategory());",
+					"    }",
+					"",
+					"    async addEvent(eventId) {",
+					"        const user = await this.addUser(new RandomUtils().getUser());",
+					"        const category = await this.addCategory();",
+					"        const event = await new RandomUtils().getEvent(eventId,category.id);",
+					"        return await this.post(\"/users/\" + user.id + \"/events\", event).then(",
+					"           event => {",
+					"               this.pm.collectionVariables.set(\"eventId\", event.id);",
+					"               return event;",
+					"           }",
+					"        )",
+					"    }",
+					"",
+					"    async addPublishEvent() {",
+					"        const event = await this.addEvent();",
+					"        return await this.publishEvent(event.id);",
+					"    }",
+					"",
+					"    async addCompilation(compilation) {",
+					"        return await this.post(\"/admin/compilations\", compilation);",
+					"    }",
+					"",
+					"    async publishParticipationRequest(eventId, userId) {",
+					"        return await this.post('/users/' + userId + '/requests?eventId=' + eventId, null);",
+					"    }",
+					"",
+					"    async publishEvent(userId,commentId) {",
+					"        return await this.patch('/users/'+ userId+'/comments/' + commentId/publish, null);",
+					"    }",
+					"",
+					"    async publishComment(eventId) {",
+					"        return await this.patch('/admin/events/' + eventId, {stateAction: \"PUBLISH_EVENT\"});",
+					"    }",
+					"    ",
+					"    async rejectEvent(eventId) {",
+					"        return await this.patch('/admin/events/' + eventId, {stateAction: \"REJECT_EVENT\"});",
+					"    }",
+					"",
+					"    async acceptParticipationRequest(eventId, userId, reqId) {",
+					"        return await this.patch('/users/' + userId + '/events/' + eventId + '/requests/', {requestIds:[reqId], status: \"CONFIRMED\"});",
+					"    }",
+					"",
+					"    async findCategory(catId) {",
+					"        return await this.get('/categories/' + catId, null);",
+					"    }",
+					"",
+					"    async findCompilation(compId) {",
+					"        return await this.get('/compilations/' + compId, null);",
+					"    }",
+					"",
+					"    async findEvent(eventId) {",
+					"        return await this.get('/events/' + eventId, null);",
+					"    }",
+					"",
+					"    async findUser(userId) {",
+					"        return await this.get('/admin/users?ids=' + userId);",
+					"    }",
+					"",
+					"    async post(path, body, errorText = \"Ошибка при выполнении post-запроса: \") {",
+					"        return await this.sendRequest(\"POST\", path, body, errorText);",
+					"    }",
+					"",
+					"    async patch(path, body = null, errorText = \"Ошибка при выполнении patch-запроса: \") {",
+					"        return await this.sendRequest(\"PATCH\", path, body, errorText);",
+					"    }",
+					"",
+					"    async get(path, body = null, errorText = \"Ошибка при выполнении get-запроса: \") {",
+					"        return await this.sendRequest(\"GET\", path, body, errorText);",
+					"    }",
+					"",
+					"    async delete(path, body = null, errorText = \"Ошибка при выполнении delete-запроса: \") {",
+					"        return await this.sendRequest(\"DELETE\", path, body, errorText);",
+					"    }",
+					"",
+					"    async sendRequest(method, path, body=null, errorText = \"Ошибка при выполнении запроса: \") {",
+					"        return new Promise((resolve, reject) => {",
+					"",
+					"            const request = {",
+					"                url: this.baseUrl + path,",
+					"                method: method,",
+					"                body: body == null ? \"\" : JSON.stringify(body),",
+					"                header: { \"Content-Type\": \"application/json\" },",
+					"            };",
+					"",
+					"            try {",
+					"                this.pm.sendRequest(request, (error, response) => {",
+					"                    if(error || (response.code >= 400 && response.code <= 599)) {",
+					"                        let err = error ? error : JSON.stringify(response.json());",
+					"                        console.error(\"При выполнении запроса к серверу возникла ошика.\\n\", err,",
+					"                             \"\\nДля отладки проблемы повторите такой же запрос к вашей программе \" + ",
+					"                             \"на локальном компьютере. Данные запроса:\\n\", JSON.stringify(request));",
+					"",
+					"                        reject(new Error(errorText + err));",
+					"                    }",
+					"",
+					"                    resolve(response.json());",
+					"                });",
+					"            } catch(err) {",
+					"                return Promise.reject(err);",
+					"            }",
+					"        });",
+					"    }",
+					"};",
+					"",
+					"RandomUtils = class {",
+					"    constructor() {}",
+					"",
+					"    dataUser(userId) {",
+					"        return {",
+					"            id: userId,",
+					"            name: pm.variables.replaceIn('{{$randomFullName}}'),",
+					"            email: pm.variables.replaceIn('{{$randomEmail}}')",
+					"        };",
+					"    }",
+					"",
+					"    dataCategory(categoryId) {",
+					"        return {",
+					"            id: categoryId,",
+					"            name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString()",
+					"        };",
+					"    }",
+					"",
+					"    dataEvent(eventId, categoryId) {",
+					"        return {",
+					"            id: eventId,",
+					"            annotation: pm.variables.replaceIn('{{$randomLoremParagraph}}'),",
+					"            category: categoryId,",
+					"            description: pm.variables.replaceIn('{{$randomLoremParagraphs}}'),",
+					"            eventDate: this.getFutureDateTime(),",
+					"            location: {",
+					"                lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),",
+					"                lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}')),",
+					"            },",
+					"            paid: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            participantLimit: pm.variables.replaceIn('{{$randomInt}}'),",
+					"            requestModeration: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            title: pm.variables.replaceIn('{{$randomLoremSentence}}'),",
+					"        }",
+					"    }",
+					"",
+					"    dataCompilation(compilationId, ...eventIds) {",
+					"        return {",
+					"            id: compilationId,",
+					"            title: pm.variables.replaceIn('{{$randomLoremSentence}}').slice(0, 50),",
+					"            pinned: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            events: eventIds",
+					"        };",
+					"    }",
+					"",
+					"    dataComment(commentId, len) {",
+					"        return {",
+					"            id: commentId,",
+					"            text: this.getWord(len),",
+					"        };",
+					"    }",
+					"",
+					"    dataCommentReply(commentId,replyCommentId, len) {",
+					"        return {",
+					"            id: commentId,",
+					"            text: this.getWord(len),",
+					"            replyTarget: replyCommentId,",
+					"        };",
+					"    }",
+					"",
+					"",
+					"",
+					"    getComment() {",
+					"        return {",
+					"            text: pm.variables.replaceIn('{{$randomLoremParagraph}}'),",
+					"            replyTarget: 1,",
+					"        };",
+					"    }",
+					"",
+					"    getCommentLen(len) {",
+					"        return {",
+					"            text: this.getWord(len),",
+					"        };",
+					"    }",
+					"",
+					"    ",
+					"    getCommentStatic(len) {",
+					"        return {",
+					"            text: \"filter text seed filter text\",",
+					"        };",
+					"    }",
+					"",
+					"    getUser() {",
+					"        return {",
+					"            name: pm.variables.replaceIn('{{$randomFullName}}'),",
+					"            email: pm.variables.replaceIn('{{$randomEmail}}')",
+					"        };",
+					"    }",
+					"",
+					"",
+					"",
+					"    getCategory() {",
+					"        return {",
+					"            name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString()",
+					"        };",
+					"    }",
+					"",
+					"    getEvent(eventId, categoryId) {",
+					"        return {",
+					"            id: eventId,",
+					"            annotation: pm.variables.replaceIn('{{$randomLoremParagraph}}'),",
+					"            category: categoryId,",
+					"            description: pm.variables.replaceIn('{{$randomLoremParagraphs}}'),",
+					"            eventDate: this.getFutureDateTime(),",
+					"            location: {",
+					"                lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),",
+					"                lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}')),",
+					"            },",
+					"            paid: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            participantLimit: pm.variables.replaceIn('{{$randomInt}}'),",
+					"            requestModeration: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            title: pm.variables.replaceIn('{{$randomLoremSentence}}'),",
+					"        }",
+					"    }",
+					"",
+					"    getCompilation(...eventIds) {",
+					"        return {",
+					"            title: pm.variables.replaceIn('{{$randomLoremSentence}}').slice(0, 50),",
+					"            pinned: pm.variables.replaceIn('{{$randomBoolean}}'),",
+					"            events: eventIds",
+					"        };",
+					"    }",
+					"",
+					"",
+					"    getFutureDateTime(hourShift = 5, minuteShift=0, yearShift=0) {",
+					"        let moment = require('moment');",
+					"",
+					"        let m = moment();",
+					"        m.add(hourShift, 'hour');",
+					"        m.add(minuteShift, 'minute');",
+					"        m.add(yearShift, 'year');",
+					"",
+					"        return m.format('YYYY-MM-DD HH:mm:ss');",
+					"    }",
+					"",
+					"    getWord(length = 1) {",
+					"        let result = '';",
+					"        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+					"        const charactersLength = characters.length;",
+					"        let counter = 0;",
+					"        while (counter < length) {",
+					"            result += characters.charAt(Math.floor(Math.random() * charactersLength));",
+					"            counter += 1;",
+					"        }",
+					"        return result;",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "user",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "request_body",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "eventId",
+			"value": "eventId"
+		},
+		{
+			"key": "userId",
+			"value": "1"
+		},
+		{
+			"key": "commentId",
+			"value": ""
+		}
+	]
+}

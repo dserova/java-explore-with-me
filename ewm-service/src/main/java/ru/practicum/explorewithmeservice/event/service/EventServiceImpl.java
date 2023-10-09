@@ -2,12 +2,16 @@ package ru.practicum.explorewithmeservice.event.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.practicum.explorewithmeservice.category.model.Category;
 import ru.practicum.explorewithmeservice.category.repository.CategoryRepository;
+import ru.practicum.explorewithmeservice.comment.dto.CommentResponseShortDto;
+import ru.practicum.explorewithmeservice.comment.model.Comment;
+import ru.practicum.explorewithmeservice.comment.model.CommentStatus;
+import ru.practicum.explorewithmeservice.comment.repository.CommentRepository;
+import ru.practicum.explorewithmeservice.comment.service.CommentService;
 import ru.practicum.explorewithmeservice.error.*;
 import ru.practicum.explorewithmeservice.event.dto.EventRequestDto;
 import ru.practicum.explorewithmeservice.event.dto.EventRequestUpdateDto;
@@ -37,11 +41,19 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     final RestTemplateBuilder builder = new RestTemplateBuilder();
+
     private final EventRepository eventRepository;
+
     private final UserRepository userRepository;
+
     private final CategoryRepository categoryRepository;
-    private final ModelMapper mapper;
+
+    private final CommentRepository commentRepository;
+
+    private final CommentService commentService;
+
     private final Paging paging = new Paging();
+
     private final Helper helper = new Helper();
 
     @Override
@@ -105,6 +117,37 @@ public class EventServiceImpl implements EventService {
         Function<Event, Event> chain = Function.identity();
         return chain.andThen(
                 helper.to(EventResponseDto.class)
+        ).andThen(
+                dto -> {
+
+                    List<Long> events = new ArrayList<>();
+                    events.add(eventId);
+
+                    Page<Comment> comments = commentRepository.getComments(
+                            null,
+                            null,
+                            events,
+                            null,
+                            null,
+                            null,
+                            null,
+                            true,
+                            CommentStatus.PUBLISHED,
+                            paging.getPageable(0, 1000)
+                    );
+
+                    List<Comment> filteredComments = comments.stream().peek(
+                            m -> commentService.onlyPublish(m, CommentStatus.PUBLISHED)
+                    ).collect(Collectors.toList());
+
+                    dto.setComments(
+                            filteredComments.stream().map(
+                                    helper.to(CommentResponseShortDto.class)
+                            ).collect(Collectors.toList())
+                    );
+
+                    return dto;
+                }
         ).apply(
                 eventRepository.findByIdAndInitiator_id(eventId, userId)
                         .orElseThrow(() -> new EventNotFoundException("Check your parameters in the path."))
@@ -324,7 +367,6 @@ public class EventServiceImpl implements EventService {
                     return events.stream().map(
                             event -> {
 
-
                                 ClientGetStats clientGetStats = new ClientGetStats(addressStatistic, builder);
 
                                 List<String> uris = new ArrayList<>();
@@ -378,6 +420,24 @@ public class EventServiceImpl implements EventService {
                     uris.add(url);
 
                     return getEventResponseDto(event, clientGetStats, uris);
+                }
+        ).andThen(
+                dto -> {
+                    List<Long> e = new ArrayList<>();
+                    e.add(eventId);
+                    Page<Comment> comments = commentRepository.getComments(null, null, e, null, null, null, null, true, CommentStatus.PUBLISHED, paging.getPageable(0, 1000));
+
+                    List<Comment> filteredComments = comments.stream().peek(
+                            m -> commentService.onlyPublish(m, CommentStatus.PUBLISHED)
+                    ).collect(Collectors.toList());
+
+                    dto.setComments(
+                            filteredComments.stream().map(
+                                    helper.to(CommentResponseShortDto.class)
+                            ).collect(Collectors.toList())
+                    );
+
+                    return dto;
                 }
         ).andThen(
                 helper.to(EventResponseDto.class)

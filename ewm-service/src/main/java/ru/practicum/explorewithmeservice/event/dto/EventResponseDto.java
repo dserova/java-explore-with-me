@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.explorewithmeservice.category.model.Category;
+import ru.practicum.explorewithmeservice.comment.dto.CommentResponseShortDto;
 import ru.practicum.explorewithmeservice.event.model.EventState;
 import ru.practicum.explorewithmeservice.location.model.Location;
 import ru.practicum.explorewithmeservice.user.model.User;
 
 import java.util.Calendar;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -31,4 +33,5 @@ public class EventResponseDto {
     private EventState state;
     private String title;
     private Long views;
+    private List<CommentResponseShortDto> comments;
 }
