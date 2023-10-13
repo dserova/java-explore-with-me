@@ -110,16 +110,17 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "                  OR " +
             "                  ((:onlyAvailable) <> true)) " +
             "order by " +
-            "CASE WHEN (:sortByEvent) = 'EVENT_DATE' THEN e.eventDate END ASC, " +
-            "CASE WHEN (:sortByEvent) = 'VIEWS' THEN e.views END ASC")
+            "CASE WHEN (COALESCE(:sortState, null) IS null) THEN null END ASC, " +
+            "CASE WHEN (COALESCE(:sortState, null) = 'EVENT_DATE') THEN e.eventDate END ASC, " +
+            "CASE WHEN (COALESCE(:sortState, null) = 'VIEWS') THEN e.views END ASC")
     Page<Event> search(
             @Param("text") String text,
             @Param("categories") List<Long> categories,
             @Param("paid") Boolean paid,
             @Param("rangeStart") Calendar rangeStart,
             @Param("rangeEnd") Calendar rangeEnd,
+            @Param("sortState") String sortState,
             @Param("onlyAvailable") Boolean onlyAvailable,
-            @Param("sortByEvent") String sortByEvent,
             Pageable pageable
     );
 

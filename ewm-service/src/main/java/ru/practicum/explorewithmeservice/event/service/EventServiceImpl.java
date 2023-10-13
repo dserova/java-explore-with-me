@@ -2,12 +2,16 @@ package ru.practicum.explorewithmeservice.event.service;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import ru.practicum.explorewithmeservice.category.model.Category;
 import ru.practicum.explorewithmeservice.category.repository.CategoryRepository;
+import ru.practicum.explorewithmeservice.comment.dto.CommentResponseShortDto;
+import ru.practicum.explorewithmeservice.comment.model.Comment;
+import ru.practicum.explorewithmeservice.comment.model.CommentStatus;
+import ru.practicum.explorewithmeservice.comment.repository.CommentRepository;
+import ru.practicum.explorewithmeservice.comment.service.CommentService;
 import ru.practicum.explorewithmeservice.error.*;
 import ru.practicum.explorewithmeservice.event.dto.EventRequestDto;
 import ru.practicum.explorewithmeservice.event.dto.EventRequestUpdateDto;
@@ -15,6 +19,7 @@ import ru.practicum.explorewithmeservice.event.dto.EventResponseDto;
 import ru.practicum.explorewithmeservice.event.model.Event;
 import ru.practicum.explorewithmeservice.event.model.EventState;
 import ru.practicum.explorewithmeservice.event.model.EventStateUpdate;
+import ru.practicum.explorewithmeservice.event.model.SortState;
 import ru.practicum.explorewithmeservice.event.repository.EventRepository;
 import ru.practicum.explorewithmeservice.helpers.Helper;
 import ru.practicum.explorewithmeservice.helpers.Paging;
@@ -37,11 +42,19 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     final RestTemplateBuilder builder = new RestTemplateBuilder();
+
     private final EventRepository eventRepository;
+
     private final UserRepository userRepository;
+
     private final CategoryRepository categoryRepository;
-    private final ModelMapper mapper;
+
+    private final CommentRepository commentRepository;
+
+    private final CommentService commentService;
+
     private final Paging paging = new Paging();
+
     private final Helper helper = new Helper();
 
     @Override
@@ -105,6 +118,37 @@ public class EventServiceImpl implements EventService {
         Function<Event, Event> chain = Function.identity();
         return chain.andThen(
                 helper.to(EventResponseDto.class)
+        ).andThen(
+                dto -> {
+
+                    List<Long> events = new ArrayList<>();
+                    events.add(eventId);
+
+                    Page<Comment> comments = commentRepository.getComments(
+                            null,
+                            null,
+                            events,
+                            null,
+                            null,
+                            null,
+                            null,
+                            true,
+                            CommentStatus.PUBLISHED,
+                            paging.getPageable(0, 1000)
+                    );
+
+                    List<Comment> filteredComments = comments.stream().peek(
+                            m -> commentService.onlyPublish(m, CommentStatus.PUBLISHED)
+                    ).collect(Collectors.toList());
+
+                    dto.setComments(
+                            filteredComments.stream().map(
+                                    helper.to(CommentResponseShortDto.class)
+                            ).collect(Collectors.toList())
+                    );
+
+                    return dto;
+                }
         ).apply(
                 eventRepository.findByIdAndInitiator_id(eventId, userId)
                         .orElseThrow(() -> new EventNotFoundException("Check your parameters in the path."))
@@ -286,7 +330,7 @@ public class EventServiceImpl implements EventService {
             Calendar rangeStart,
             Calendar rangeEnd,
             Boolean onlyAvailable,
-            String sortState,
+            String sort,
             int from,
             int size,
             String ip,
@@ -294,6 +338,9 @@ public class EventServiceImpl implements EventService {
             String app,
             String addressStatistic
     ) {
+
+        SortState sortState = SortState.from(sort).orElse(null);
+
         if (rangeStart != null && rangeEnd != null) {
             if (rangeStart.after(rangeEnd)) {
                 throw new EventBadRequestException();
@@ -311,19 +358,13 @@ public class EventServiceImpl implements EventService {
                 helper.fromPage(EventResponseDto.class)
         ).andThen(
                 events -> {
-                    Thread thread = new Thread(() -> {
-                        EndpointHitDto statistic = new EndpointHitDto();
-                        statistic.setApp(app);
-                        statistic.setIp(ip);
-                        statistic.setUri(url);
-                        statistic.setTimestamp(Calendar.getInstance());
-                        ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
-                        clientCreateHit.createHit(statistic);
-                    });
-                    thread.start();
+                    // Thread problem in github, normal in local
+                    //Thread thread = new Thread(() -> {
+                    sendStatistic(ip, url, app, addressStatistic);
+                    //});
+                    //thread.start();
                     return events.stream().map(
                             event -> {
-
 
                                 ClientGetStats clientGetStats = new ClientGetStats(addressStatistic, builder);
 
@@ -341,11 +382,21 @@ public class EventServiceImpl implements EventService {
                         paid,
                         finalRangeStart,
                         rangeEnd,
+                        String.valueOf(sortState),
                         onlyAvailable,
-                        sortState,
                         paging.getPageable(from, size)
                 )
         );
+    }
+
+    private void sendStatistic(String ip, String url, String app, String addressStatistic) {
+        EndpointHitDto statistic = new EndpointHitDto();
+        statistic.setApp(app);
+        statistic.setIp(ip);
+        statistic.setUri(url);
+        statistic.setTimestamp(Calendar.getInstance());
+        ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
+        clientCreateHit.createHit(statistic);
     }
 
     @Override
@@ -361,16 +412,11 @@ public class EventServiceImpl implements EventService {
                 helper.to(EventResponseDto.class)
         ).andThen(
                 event -> {
-                    Thread thread = new Thread(() -> {
-                        EndpointHitDto statistic = new EndpointHitDto();
-                        statistic.setApp(app);
-                        statistic.setIp(ip);
-                        statistic.setUri(url);
-                        statistic.setTimestamp(Calendar.getInstance());
-                        ClientCreateHit clientCreateHit = new ClientCreateHit(addressStatistic, builder);
-                        clientCreateHit.createHit(statistic);
-                    });
-                    thread.start();
+                    // Thread problem in github, normal in local
+                    //Thread thread = new Thread(() -> {
+                    sendStatistic(ip, url, app, addressStatistic);
+                    //});
+                    //thread.start();
 
                     ClientGetStats clientGetStats = new ClientGetStats(addressStatistic, builder);
 
@@ -378,6 +424,35 @@ public class EventServiceImpl implements EventService {
                     uris.add(url);
 
                     return getEventResponseDto(event, clientGetStats, uris);
+                }
+        ).andThen(
+                dto -> {
+                    List<Long> events = new ArrayList<>();
+                    events.add(eventId);
+                    Page<Comment> comments = commentRepository.getComments(
+                            null,
+                            null,
+                            events,
+                            null,
+                            null,
+                            null,
+                            null,
+                            true,
+                            CommentStatus.PUBLISHED,
+                            paging.getPageable(0, 1000)
+                    );
+
+                    List<Comment> filteredComments = comments.stream().peek(
+                            m -> commentService.onlyPublish(m, CommentStatus.PUBLISHED)
+                    ).collect(Collectors.toList());
+
+                    dto.setComments(
+                            filteredComments.stream().map(
+                                    helper.to(CommentResponseShortDto.class)
+                            ).collect(Collectors.toList())
+                    );
+
+                    return dto;
                 }
         ).andThen(
                 helper.to(EventResponseDto.class)

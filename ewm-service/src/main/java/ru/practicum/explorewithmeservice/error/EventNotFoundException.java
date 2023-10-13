@@ -8,7 +8,7 @@ public class EventNotFoundException extends RuntimeException {
     HttpStatus httpStatus;
 
     public EventNotFoundException() {
-        super("User not found");
+        super("Event not found");
     }
 
     public EventNotFoundException(String message) {
